@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -109,12 +110,12 @@ func (b *BookRepo) GetBookById(ctx context.Context, req *product_service.GetById
 }
 
 func (b *BookRepo) GetBooks(ctx context.Context, req *product_service.GetListReq) (*product_service.BookGetListResp, error) {
-	
+
 	offset := (req.Page - 1) * req.Limit
 
 	var resp product_service.Book
 	var res product_service.BookGetListResp
-	
+
 	qury := `
 		SELECT 
 			*
@@ -160,4 +161,83 @@ func (b *BookRepo) GetBooks(ctx context.Context, req *product_service.GetListReq
 
 	}
 	return &res, nil
+}
+
+func (b *BookRepo) UpdateBook(ctx context.Context, req *product_service.BookUpdateReq) (*product_service.Book, error) {
+
+	time := time.Now()
+
+	query := `
+			UPDATE
+				books
+			SET
+				title = $1,
+				author_id = $2,
+				category_id =$3,
+				price = $4,
+				stock = $5,
+				description = $6,
+				published_date = $7,
+				updated_at = $8
+			WHERE 
+				book_id = $9 
+			AND  
+				deleted_at is null
+			`
+
+	_, err := b.db.Exec(
+		ctx,
+		query,
+		req.Title,
+		req.AuthorId,
+		req.CategoryId,
+		req.Price,
+		req.Stock,
+		req.Description,
+		req.PublishedDate,
+		time,
+		req.BookId,
+	)
+	if err != nil {
+
+		b.log.Error("err on db UpdateBook", logger.Error(err))
+		return nil, err
+	}
+
+	resp, err := b.GetBookById(context.Background(), &product_service.GetByIdReq{Id: req.BookId})
+
+	if err != nil {
+
+		b.log.Error("err on db GetBookyById", logger.Error(err))
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (b *BookRepo) DeleteBook(ctx context.Context, req *product_service.DeleteReq) (string, error) {
+
+	time := time.Now()
+
+	query := `
+			UPDATE
+				books
+			SET
+				deleted_at = $1
+			WHERE book_id = $2
+			`
+
+	_, err := b.db.Exec(
+		ctx,
+		query,
+		time,
+		req.Id,
+	)
+	if err != nil {
+
+		b.log.Error("err on db DeleteBook", logger.Error(err))
+		return "", err
+	}
+
+	return "successfuly deleted", nil
 }

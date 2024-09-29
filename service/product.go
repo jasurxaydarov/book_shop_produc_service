@@ -170,7 +170,7 @@ func (b *ProductService) UpdateBook(context.Context, *product_service.BookUpdate
 
 
 
-func (a *ProductService) CreateAuth(ctx context.Context, req *product_service.AuthorUpdateReq) (*product_service.Author, error) {
+func (a *ProductService) CreateAuth(ctx context.Context, req *product_service.AuthorCreateReq) (*product_service.Author, error) {
 
 	resp, err := a.storage.GetAuthRepo().CreateAuth(ctx, req)
 

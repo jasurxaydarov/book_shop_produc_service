@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -19,7 +20,7 @@ func NewAuthRepo(db *pgx.Conn, log logger.LoggerI) AuthRepoI {
 	return &AuthRepo{db: db, log: log}
 }
 
-func (u *AuthRepo) CreateAuth(ctx context.Context, req *product_service.AuthorUpdateReq) (*product_service.Author, error) {
+func (u *AuthRepo) CreateAuth(ctx context.Context, req *product_service.AuthorCreateReq) (*product_service.Author, error) {
 	id := uuid.New()
 	query := `
 		INSERT INTO
@@ -76,6 +77,9 @@ func (u *AuthRepo) GetAuthById(ctx context.Context, req *product_service.GetById
 		&resp.AuthorId,
 		&resp.AuthorName,
 		&resp.Bio,
+		&resp.CreatedAt,
+		&resp.UpdatedAt,
+		&resp.DeletedAt,
 	)
 
 	if err != nil {
@@ -85,4 +89,126 @@ func (u *AuthRepo) GetAuthById(ctx context.Context, req *product_service.GetById
 	}
 
 	return &resp, nil
+}
+
+func (u *AuthRepo) GetAuths(ctx context.Context, req *product_service.GetByIdReq) (*product_service.AuthorGetListResp, error) {
+
+	var resp product_service.Author
+	var res product_service.AuthorGetListResp
+	qury := `
+		SELECT 
+			*
+		FROM 
+			authors 
+		WHERE 
+			author_id = $1
+		AND  
+			deleted_at is null
+			
+	`
+
+	row, err := u.db.Query(
+		ctx,
+		qury,
+		req.Id,
+	)
+
+	if err != nil {
+
+		u.log.Error("err on db GetAuths", logger.Error(err))
+		return nil, err
+	}
+
+	for row.Next() {
+
+		row.Scan(
+			&resp.AuthorId,
+			&resp.AuthorName,
+			&resp.Bio,
+			&resp.CreatedAt,
+			&resp.UpdatedAt,
+			&resp.DeletedAt,
+		)
+
+		res.Count++
+
+		res.Author = append(res.Author, &resp)
+
+	}
+
+	return &res, nil
+}
+
+func (u *AuthRepo) UpdateAuth(ctx context.Context, req *product_service.AuthorUpdateReq) (*product_service.Author, error) {
+	
+	time := time.Now()
+	
+	query := `
+		UPDATE
+			authors
+		SET	
+				name = $1,
+				bio = $2,
+				updated_at = $3 
+		WHERE 
+				author_id = $4 
+		AND  
+				deleted_at is null
+			`
+
+	_, err := u.db.Exec(
+		ctx,
+		query,
+		req.AuthorName,
+		req.Bio,
+		time,
+		req.AuthorId,
+	)
+	if err != nil {
+
+		u.log.Error("err on db UpdateAuth", logger.Error(err))
+		return nil, err
+	}
+
+	resp, err := u.GetAuthById(context.Background(), &product_service.GetByIdReq{Id: req.AuthorId})
+
+	if err != nil {
+
+		u.log.Error("err on db GetAuthById", logger.Error(err))
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+
+func (u *AuthRepo) DeleteAuth(ctx context.Context, req *product_service.AuthorUpdateReq) (string, error) {
+	
+	time := time.Now()
+	
+	query := `
+		UPDATE
+			authors
+		SET	
+				updated_at = $1
+		WHERE 
+				author_id = $2
+		AND  
+				deleted_at is null
+			`
+
+	_, err := u.db.Exec(
+		ctx,
+		query,
+		time,
+		req.AuthorId,
+	)
+	if err != nil {
+
+		u.log.Error("err on db DeleteAuth", logger.Error(err))
+		return "", err
+	}
+
+
+	return "successfully deleted", nil
 }
