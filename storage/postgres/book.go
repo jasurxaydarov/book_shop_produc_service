@@ -215,7 +215,7 @@ func (b *BookRepo) UpdateBook(ctx context.Context, req *product_service.BookUpda
 	return resp, nil
 }
 
-func (b *BookRepo) DeleteBook(ctx context.Context, req *product_service.DeleteReq) (string, error) {
+func (b *BookRepo) DeleteBook(ctx context.Context, req *product_service.DeleteReq) (*product_service.Empty, error) {
 
 	time := time.Now()
 
@@ -236,8 +236,8 @@ func (b *BookRepo) DeleteBook(ctx context.Context, req *product_service.DeleteRe
 	if err != nil {
 
 		b.log.Error("err on db DeleteBook", logger.Error(err))
-		return "", err
+		return nil, err
 	}
 
-	return "successfuly deleted", nil
+	return &product_service.Empty{}, nil
 }

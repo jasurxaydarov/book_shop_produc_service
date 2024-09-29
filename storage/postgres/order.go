@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -67,7 +68,10 @@ func (o *orderRepo) GetOrderById(ctx context.Context, req *product_service.GetBy
 			order_id,
 			user_id,
 			total_amount,
-			order_status 
+			order_status,
+			created_at,
+			updated_at
+
 		FROM 
 			orders
 		WHERE
@@ -83,14 +87,145 @@ func (o *orderRepo) GetOrderById(ctx context.Context, req *product_service.GetBy
 		&resp.UserId,
 		&resp.TotalAmount,
 		&resp.OrderStatus,
+		&resp.CreatedAt,
+		&resp.UpdatedAt,
 	
 	)
 
 	if err != nil {
 
-		o.log.Error("err on db GetBookById", logger.Error(err))
+		o.log.Error("err on db GetOrderById", logger.Error(err))
 		return nil, err
 	}
 
 	return &resp, nil
+}
+
+
+func (o *orderRepo) GetOrders(ctx context.Context, req *product_service.GetListReq) (*product_service.OrderGetListResp, error) {
+
+	offset := (req.Page - 1) * req.Limit
+
+
+	var resp product_service.Order
+
+	var res product_service.OrderGetListResp
+	qury := `
+		SELECT 
+			*
+		FROM 
+			orders
+		WHERE 
+    		deleted_at IS NULL
+		LIMIT $1 OFFSET $2;
+	`
+
+	row, err := o.db.Query(
+		ctx,
+		qury,
+		req.Limit,
+		offset,
+	)
+
+	if err != nil {
+
+		o.log.Error("err on db GetOrders", logger.Error(err))
+		return nil, err
+	}
+
+	for row.Next() {
+
+		row.Scan(
+			&resp.OrderId,
+			&resp.UserId,
+			&resp.TotalAmount,
+			&resp.OrderStatus,
+			&resp.CreatedAt,
+			&resp.UpdatedAt,
+			&resp.DeletedAt,
+		)
+
+		res.Count++
+		res.Order = append(res.Order, &resp)
+
+	}
+
+	return &res, nil
+}
+
+
+func (o *orderRepo) UpdateOrder(ctx context.Context, req *product_service.OrderUpdateReq) (*product_service.Order, error) {
+
+
+	time:=time.Now()
+
+	query := `
+			UPDATE
+				orders
+			SET
+				user_id = $1,
+				total_amount = $2,
+				order_status = $3,
+				updated_at = $4
+			WHERE 
+				order_id = $5 
+			AND  
+				deleted_at is null
+			`
+
+	_, err := o.db.Exec(
+		ctx,
+		query,
+		req.UserId,
+		req.TotalAmount,
+		req.OrderStatus,
+		time,
+		req.OrderId,
+	)
+	if err != nil {
+
+		o.log.Error("err on db UpdateOrder", logger.Error(err))
+		return nil, err
+	}
+
+	resp, err := o.GetOrderById(context.Background(), &product_service.GetByIdReq{Id: req.OrderId})
+
+	if err != nil {
+
+		o.log.Error("err on db GetOrderById", logger.Error(err))
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (o *orderRepo) DeleteOrder(ctx context.Context, req *product_service.DeleteReq) (*product_service.Empty, error) {
+
+
+	time:=time.Now()
+
+	query := `
+			UPDATE
+				orders
+			SET
+				deleted_at = $1
+			WHERE 
+				order_id = $2 
+			AND  
+				deleted_at is null
+			`
+
+	_, err := o.db.Exec(
+		ctx,
+		query,
+		time,
+		req.Id,
+	)
+	if err != nil {
+
+		o.log.Error("err on db UpdateOrder", logger.Error(err))
+		return nil, err
+	}
+
+	return &product_service.Empty{}, nil
 }

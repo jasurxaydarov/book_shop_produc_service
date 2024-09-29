@@ -19,75 +19,51 @@ func NewOrderedItemService(storage storage.StorageRepoI) *ProductService {
 	return &ProductService{storage: storage}
 }
 
+func (o *ProductService) CreateOrdered_Item(ctx context.Context, req *product_service.OrderItemCreateReq) (*product_service.OrderItem, error) {
 
-func (o *ProductService) CreateOrdered_Item(ctx context.Context, req *product_service.OrderItemCreateReq) (*product_service.OrderItem, error){
-	log:=logger.NewLogger("",logger.LevelDebug)
-
-	log.Debug("errrrrrrrrrrrrr")
-	
 	resp, err := o.storage.GetOrderedItemRepo().CreateOrderedItem(ctx, req)
-	
+
 	if err != nil {
-	
+
 		fmt.Println(err)
 		return nil, err
 	}
-	
+
 	return resp, nil
 }
 
-func (o *ProductService) DeleteOrdered_Item(context.Context, *product_service.DeleteReq) (*product_service.Empty, error){
+func (o *ProductService) DeleteOrdered_Item(context.Context, *product_service.DeleteReq) (*product_service.Empty, error) {
 
-	return nil,nil
+	return nil, nil
 }
-func (o *ProductService) GetOrdered_Item(ctx context.Context,req *product_service.GetByIdReq) (*product_service.OrderItem, error){
-	log:=logger.NewLogger("",logger.LevelDebug)
+func (o *ProductService) GetOrdered_Item(ctx context.Context, req *product_service.GetByIdReq) (*product_service.OrderItem, error) {
 
-	log.Debug("errrrrrrrrrrrrr")
-	
 	resp, err := o.storage.GetOrderedItemRepo().GetOrderedItemById(ctx, req)
-	
+
 	if err != nil {
-	
+
 		fmt.Println(err)
 		return nil, err
 	}
-	
+
 	return resp, nil
 }
-func (o *ProductService) GetOrdered_Items(context.Context, *product_service.GetListReq) (*product_service.OrderItemGetListResp, error){
+func (o *ProductService) GetOrdered_Items(context.Context, *product_service.GetListReq) (*product_service.OrderItemGetListResp, error) {
 
-	return nil,nil
+	return nil, nil
 }
-func (o *ProductService)UpdateOrdered_Item(context.Context, *product_service.OrderItemCreateReq) (*product_service.OrderItem, error){
+func (o *ProductService) UpdateOrdered_Item(context.Context, *product_service.OrderItemCreateReq) (*product_service.OrderItem, error) {
 
-	return nil,nil
+	return nil, nil
 }
 
-func (o *ProductService)GetOrdered_ItemByOrderId(ctx context.Context,req *product_service.GetByIdReq) (*product_service.OrderItemGetListResp, error){
+func (o *ProductService) GetOrdered_ItemByOrderId(ctx context.Context, req *product_service.GetByIdReq) (*product_service.OrderItemGetListResp, error) {
 
-	log:=logger.NewLogger("",logger.LevelDebug)
+	log := logger.NewLogger("", logger.LevelDebug)
 
 	log.Debug("errrrrrrrrrrrrr")
-	
-	resp, err := o.storage.GetOrderedItemRepo().GetOrderedItemByOrdreId(ctx, req)
-	
-	if err != nil {
-	
-		fmt.Println(err)
-		return nil, err
-	}
-	
-	return resp, nil
-}
 
-
-
-func (c *ProductService)CreateCategory(ctx context.Context,req *product_service.CategoryCreateReq) (*product_service.Category, error){
-
-	log:=logger.NewLogger("",logger.LevelDebug)
-	log.Debug("errrrrrrrrr")
-	resp, err := c.storage.GetCategoryRepo().CreateCategory(ctx,req)
+	resp, err := o.storage.GetOrderedItemRepo().GetOrderedItemsByOrdreId(ctx, req)
 
 	if err != nil {
 
@@ -98,8 +74,9 @@ func (c *ProductService)CreateCategory(ctx context.Context,req *product_service.
 	return resp, nil
 }
 
-func (c *ProductService) GetCategory(ctx context.Context,req *product_service.GetByIdReq) (*product_service.Category, error){
-	resp, err := c.storage.GetCategoryRepo().GetCategoryById(ctx,req)
+func (c *ProductService) CreateCategory(ctx context.Context, req *product_service.CategoryCreateReq) (*product_service.Category, error) {
+
+	resp, err := c.storage.GetCategoryRepo().CreateCategory(ctx, req)
 
 	if err != nil {
 
@@ -110,22 +87,55 @@ func (c *ProductService) GetCategory(ctx context.Context,req *product_service.Ge
 	return resp, nil
 }
 
-func (c *ProductService) GetCategories(context.Context, *product_service.GetListReq) (*product_service.CategoryGetListResp, error){
-	
-	return nil,nil
+func (c *ProductService) GetCategory(ctx context.Context, req *product_service.GetByIdReq) (*product_service.Category, error) {
+	resp, err := c.storage.GetCategoryRepo().GetCategoryById(ctx, req)
+
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
 
-func (c *ProductService) UpdateCategory(context.Context, *product_service.CategoryUpdateReq) (*product_service.Category, error){
-	
-	return nil,nil
+func (c *ProductService) GetCategories(ctx context.Context, req *product_service.GetListReq) (*product_service.CategoryGetListResp, error) {
+
+	resp, err := c.storage.GetCategoryRepo().GetCategories(ctx, req)
+
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
-func (c *ProductService) DeleteCategory(context.Context, *product_service.DeleteReq) (*product_service.Empty, error){
 
-	return nil,nil
+func (c *ProductService) UpdateCategory(ctx context.Context, req *product_service.CategoryUpdateReq) (*product_service.Category, error) {
+
+	resp, err := c.storage.GetCategoryRepo().UpdateCategory(ctx, req)
+
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
+func (c *ProductService) DeleteCategory(ctx context.Context, req *product_service.DeleteReq) (*product_service.Empty, error) {
 
+	resp, err := c.storage.GetCategoryRepo().DeleteCategory(ctx, req)
 
+	if err != nil {
 
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
+}
 
 func (b *ProductService) CreateBook(ctx context.Context, req *product_service.BookCreateReq) (*product_service.Book, error) {
 
@@ -153,22 +163,41 @@ func (b *ProductService) GetBook(ctx context.Context, req *product_service.GetBy
 	return resp, nil
 }
 
-func (b *ProductService) DeleteBook(context.Context, *product_service.DeleteReq) (*product_service.Empty, error) {
+func (b *ProductService) DeleteBook(ctx context.Context, req *product_service.DeleteReq) (*product_service.Empty, error) {
+	resp, err := b.storage.GetBookRepo().DeleteBook(ctx, req)
 
-	return nil, nil
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
 
-func (b *ProductService) GetBooks(context.Context, *product_service.GetListReq) (*product_service.BookGetListResp, error) {
+func (b *ProductService) GetBooks(ctx context.Context, req *product_service.GetListReq) (*product_service.BookGetListResp, error) {
 
-	return nil, nil
+	resp, err := b.storage.GetBookRepo().GetBooks(ctx, req)
+
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
-func (b *ProductService) UpdateBook(context.Context, *product_service.BookUpdateReq) (*product_service.Book, error) {
+func (b *ProductService) UpdateBook(ctx context.Context, req *product_service.BookUpdateReq) (*product_service.Book, error) {
+	resp, err := b.storage.GetBookRepo().UpdateBook(ctx, req)
 
-	return nil, nil
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
-
-
-
 
 func (a *ProductService) CreateAuth(ctx context.Context, req *product_service.AuthorCreateReq) (*product_service.Author, error) {
 
@@ -183,8 +212,15 @@ func (a *ProductService) CreateAuth(ctx context.Context, req *product_service.Au
 	return resp, nil
 }
 func (a *ProductService) DeleteAuth(ctx context.Context, req *product_service.DeleteReq) (*product_service.Empty, error) {
+	resp, err := a.storage.GetAuthRepo().DeleteAuth(ctx, req)
 
-	return nil, nil
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
 func (a *ProductService) GetAuth(ctx context.Context, req *product_service.GetByIdReq) (*product_service.Author, error) {
 
@@ -199,22 +235,35 @@ func (a *ProductService) GetAuth(ctx context.Context, req *product_service.GetBy
 	return resp, nil
 
 }
-func (a *ProductService) GetAuths(context.Context, *product_service.GetListReq) (*product_service.AuthorGetListResp, error) {
+func (a *ProductService) GetAuths(ctx context.Context, req *product_service.GetListReq) (*product_service.AuthorGetListResp, error) {
+	resp, err := a.storage.GetAuthRepo().GetAuths(ctx, req)
 
-	return nil, nil
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
-func (a *ProductService) UpdateAuth(context.Context, *product_service.AuthorUpdateReq) (*product_service.Author, error) {
+func (a *ProductService) UpdateAuth(ctx context.Context, req *product_service.AuthorUpdateReq) (*product_service.Author, error) {
+	resp, err := a.storage.GetAuthRepo().UpdateAuth(ctx, req)
 
-	return nil, nil
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
-
 
 func (o *ProductService) CreateOrder(ctx context.Context, req *product_service.OrderCreateReq) (*product_service.Order, error) {
 
-	log:=logger.NewLogger("",logger.LevelDebug)
+	log := logger.NewLogger("", logger.LevelDebug)
 
 	log.Debug("errrrrrrrrrrrrr")
-	
+
 	resp, err := o.storage.GetOrderRepo().CreateOrder(ctx, req)
 
 	if err != nil {
@@ -239,17 +288,38 @@ func (o *ProductService) GetOrder(ctx context.Context, req *product_service.GetB
 	return resp, nil
 }
 
-func (o *ProductService) DeleteOrder(context.Context, *product_service.DeleteReq) (*product_service.Empty, error) {
+func (o *ProductService) DeleteOrder(ctx context.Context, req *product_service.DeleteReq) (*product_service.Empty, error) {
+	resp, err := o.storage.GetOrderRepo().DeleteOrder(ctx, req)
 
-	return nil, nil
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
 
-func (o *ProductService) Getorders(context.Context, *product_service.GetListReq) (*product_service.OrderGetListResp, error) {
+func (o *ProductService) Getorders(ctx context.Context, req *product_service.GetListReq) (*product_service.OrderGetListResp, error) {
 
-	return nil, nil
+	resp, err := o.storage.GetOrderRepo().GetOrders(ctx, req)
+
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
-func (o *ProductService) Updateorder(context.Context, *product_service.OrderUpdateReq) (*product_service.Order, error) {
+func (o *ProductService) Updateorder(ctx context.Context, req *product_service.OrderUpdateReq) (*product_service.Order, error) {
+	resp, err := o.storage.GetOrderRepo().UpdateOrder(ctx, req)
 
-	return nil, nil
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
-

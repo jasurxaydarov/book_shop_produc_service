@@ -91,7 +91,10 @@ func (u *AuthRepo) GetAuthById(ctx context.Context, req *product_service.GetById
 	return &resp, nil
 }
 
-func (u *AuthRepo) GetAuths(ctx context.Context, req *product_service.GetByIdReq) (*product_service.AuthorGetListResp, error) {
+func (u *AuthRepo) GetAuths(ctx context.Context, req *product_service.GetListReq) (*product_service.AuthorGetListResp, error) {
+
+	offset := (req.Page - 1) * req.Limit
+
 
 	var resp product_service.Author
 	var res product_service.AuthorGetListResp
@@ -101,16 +104,16 @@ func (u *AuthRepo) GetAuths(ctx context.Context, req *product_service.GetByIdReq
 		FROM 
 			authors 
 		WHERE 
-			author_id = $1
-		AND  
-			deleted_at is null
+    		deleted_at IS NULL
+		LIMIT $1 OFFSET $2;
 			
 	`
 
 	row, err := u.db.Query(
 		ctx,
 		qury,
-		req.Id,
+		req.Limit,
+		offset,
 	)
 
 	if err != nil {
@@ -182,7 +185,7 @@ func (u *AuthRepo) UpdateAuth(ctx context.Context, req *product_service.AuthorUp
 }
 
 
-func (u *AuthRepo) DeleteAuth(ctx context.Context, req *product_service.AuthorUpdateReq) (string, error) {
+func (u *AuthRepo) DeleteAuth(ctx context.Context, req *product_service.DeleteReq) (*product_service.Empty, error) {
 	
 	time := time.Now()
 	
@@ -190,7 +193,7 @@ func (u *AuthRepo) DeleteAuth(ctx context.Context, req *product_service.AuthorUp
 		UPDATE
 			authors
 		SET	
-				updated_at = $1
+				deleted_at = $1
 		WHERE 
 				author_id = $2
 		AND  
@@ -201,14 +204,14 @@ func (u *AuthRepo) DeleteAuth(ctx context.Context, req *product_service.AuthorUp
 		ctx,
 		query,
 		time,
-		req.AuthorId,
+		req.Id,
 	)
 	if err != nil {
 
 		u.log.Error("err on db DeleteAuth", logger.Error(err))
-		return "", err
+		return nil, err
 	}
 
 
-	return "successfully deleted", nil
+	return &product_service.Empty{}, nil
 }

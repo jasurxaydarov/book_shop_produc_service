@@ -186,7 +186,7 @@ func (c *CategoryRepo) UpdateCategory(ctx context.Context, req *product_service.
 	return resp, nil
 }
 
-func (c *CategoryRepo) DeleteCategory(ctx context.Context, req *product_service.DeleteReq) (string, error) {
+func (c *CategoryRepo) DeleteCategory(ctx context.Context, req *product_service.DeleteReq) (*product_service.Empty, error) {
 
 	time:=time.Now()
 
@@ -194,7 +194,7 @@ func (c *CategoryRepo) DeleteCategory(ctx context.Context, req *product_service.
 			UPDATE
 				categories
 			SET
-				updated_at = $1
+				deleted_at = $1
 			WHERE
 				category_id = $2
 			`
@@ -208,10 +208,10 @@ func (c *CategoryRepo) DeleteCategory(ctx context.Context, req *product_service.
 	if err != nil {
 
 		c.log.Error("err on db DeleteCategory", logger.Error(err))
-		return "", err
+		return nil, err
 	}
 
 	
 
-	return "successfully deleted", nil
+	return &product_service.Empty{}, nil
 }
