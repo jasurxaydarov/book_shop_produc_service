@@ -21,6 +21,9 @@ type OrderRepoI interface {
 type AuthRepoI interface {
 	CreateAuth(ctx context.Context, req *product_service.AuthorCreateReq) (*product_service.Author, error)
 	GetAuthById(ctx context.Context, req *product_service.GetByIdReq) (*product_service.Author, error)
+	GetAuths(ctx context.Context, req *product_service.GetByIdReq) (*product_service.AuthorGetListResp, error)
+	UpdateAuth(ctx context.Context, req *product_service.AuthorUpdateReq) (*product_service.Author, error) 
+	DeleteAuth(ctx context.Context, req *product_service.AuthorUpdateReq) (string, error)
 }
  
 type BookRepoI interface {
@@ -35,5 +38,8 @@ type BookRepoI interface {
 type CategoryRepoI interface {
 	CreateCategory(ctx context.Context, req *product_service.CategoryCreateReq) (*product_service.Category, error)
 	GetCategoryById(ctx context.Context, req *product_service.GetByIdReq) (*product_service.Category, error)
+	GetCategories(ctx context.Context, req *product_service.GetListReq) (*product_service.CategoryGetListResp, error)
+	UpdateCategory(ctx context.Context, req *product_service.CategoryUpdateReq) (*product_service.Category, error)
+	DeleteCategory(ctx context.Context, req *product_service.DeleteReq) (string, error) 
 }
  
