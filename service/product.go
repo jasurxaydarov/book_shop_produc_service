@@ -32,7 +32,7 @@ func (o *ProductService) CreateOrdered_Item(ctx context.Context, req *product_se
 	return resp, nil
 }
 
-func (o *ProductService) DeleteOrdered_Item(ctx context.Context,req *product_service.DeleteReq) (*product_service.Empty, error) {
+func (o *ProductService) DeleteOrdered_Item(ctx context.Context, req *product_service.DeleteReq) (*product_service.Empty, error) {
 
 	resp, err := o.storage.GetOrderedItemRepo().DeleteOrderedItem(ctx, req)
 
@@ -56,7 +56,7 @@ func (o *ProductService) GetOrdered_Item(ctx context.Context, req *product_servi
 
 	return resp, nil
 }
-func (o *ProductService) GetOrdered_Items(ctx context.Context,req *product_service.GetListReq) (*product_service.OrderItemGetListResp, error) {
+func (o *ProductService) GetOrdered_Items(ctx context.Context, req *product_service.GetListReq) (*product_service.OrderItemGetListResp, error) {
 	resp, err := o.storage.GetOrderedItemRepo().GetOrderedItems(ctx, req)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func (o *ProductService) GetOrdered_Items(ctx context.Context,req *product_servi
 
 	return resp, nil
 }
-func (o *ProductService) UpdateOrdered_Item(ctx context.Context,req *product_service.OrderItemUpdate) (*product_service.OrderItem, error) {
+func (o *ProductService) UpdateOrdered_Item(ctx context.Context, req *product_service.OrderItemUpdate) (*product_service.OrderItem, error) {
 
 	resp, err := o.storage.GetOrderedItemRepo().UpdateOrderedItem(ctx, req)
 
@@ -329,12 +329,13 @@ func (o *ProductService) Getorders(ctx context.Context, req *product_service.Get
 
 	if err != nil {
 
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		return nil, err
 	}
 
 	return resp, nil
 }
+
 func (o *ProductService) Updateorder(ctx context.Context, req *product_service.OrderUpdateReq) (*product_service.Order, error) {
 	resp, err := o.storage.GetOrderRepo().UpdateOrder(ctx, req)
 

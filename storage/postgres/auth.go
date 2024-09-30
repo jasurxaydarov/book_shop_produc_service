@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -62,7 +63,9 @@ func (u *AuthRepo) GetAuthById(ctx context.Context, req *product_service.GetById
 	var resp product_service.Author
 	qury := `
 		SELECT 
-			*
+			author_id,
+				name,
+				bio 				
 		FROM 
 			authors 
 		WHERE
@@ -77,9 +80,6 @@ func (u *AuthRepo) GetAuthById(ctx context.Context, req *product_service.GetById
 		&resp.AuthorId,
 		&resp.AuthorName,
 		&resp.Bio,
-		&resp.CreatedAt,
-		&resp.UpdatedAt,
-		&resp.DeletedAt,
 	)
 
 	if err != nil {
@@ -95,12 +95,13 @@ func (u *AuthRepo) GetAuths(ctx context.Context, req *product_service.GetListReq
 
 	offset := (req.Page - 1) * req.Limit
 
-
 	var resp product_service.Author
 	var res product_service.AuthorGetListResp
 	qury := `
 		SELECT 
-			*
+			author_id,
+			name,
+			bio 
 		FROM 
 			authors 
 		WHERE 
@@ -124,28 +125,32 @@ func (u *AuthRepo) GetAuths(ctx context.Context, req *product_service.GetListReq
 
 	for row.Next() {
 
-		row.Scan(
+		err=row.Scan(
 			&resp.AuthorId,
 			&resp.AuthorName,
 			&resp.Bio,
-			&resp.CreatedAt,
-			&resp.UpdatedAt,
-			&resp.DeletedAt,
+		
 		)
+		if err != nil {
 
+			u.log.Error("err on db GetAuths", logger.Error(err))
+			return nil, err
+		}
+	
 		res.Count++
 
 		res.Author = append(res.Author, &resp)
 
 	}
+	fmt.Println(res.Author)
 
 	return &res, nil
 }
 
 func (u *AuthRepo) UpdateAuth(ctx context.Context, req *product_service.AuthorUpdateReq) (*product_service.Author, error) {
-	
+
 	time := time.Now()
-	
+
 	query := `
 		UPDATE
 			authors
@@ -184,11 +189,10 @@ func (u *AuthRepo) UpdateAuth(ctx context.Context, req *product_service.AuthorUp
 	return resp, nil
 }
 
-
 func (u *AuthRepo) DeleteAuth(ctx context.Context, req *product_service.DeleteReq) (*product_service.Empty, error) {
-	
+
 	time := time.Now()
-	
+
 	query := `
 		UPDATE
 			authors
@@ -211,7 +215,6 @@ func (u *AuthRepo) DeleteAuth(ctx context.Context, req *product_service.DeleteRe
 		u.log.Error("err on db DeleteAuth", logger.Error(err))
 		return nil, err
 	}
-
 
 	return &product_service.Empty{}, nil
 }

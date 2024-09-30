@@ -64,13 +64,13 @@ func (c *CategoryRepo) GetCategoryById(ctx context.Context, req *product_service
 		SELECT 
 			category_id,
 			name,
-			description,
-			created_at,
-			updated_at
+			description
 		FROM 
 			categories
 		WHERE
 			category_id = $1
+		AND
+			deleted_at is null
 	`
 
 	err := c.db.QueryRow(
@@ -81,8 +81,6 @@ func (c *CategoryRepo) GetCategoryById(ctx context.Context, req *product_service
 		&resp.CategoryId,
 		&resp.CategoryName,
 		&resp.Description,
-		&resp.CreatedAt,
-		&resp.UpdatedAt,
 	)
 
 	if err != nil {
@@ -102,7 +100,9 @@ func (c *CategoryRepo) GetCategories(ctx context.Context, req *product_service.G
 	var res product_service.CategoryGetListResp
 	qury := `
 		SELECT 
-			*
+			category_id,
+			name,
+			description
 		FROM 
 			categories
 		WHERE
@@ -130,11 +130,12 @@ func (c *CategoryRepo) GetCategories(ctx context.Context, req *product_service.G
 			&resp.CategoryId,
 			&resp.CategoryName,
 			&resp.Description,
-			&resp.CreatedAt,
-			&resp.UpdatedAt,
-			&resp.DeletedAt,
 		)
+		if err != nil {
 
+			c.log.Error("err on db GetCategories", logger.Error(err))
+			return nil, err
+		}
 		res.Count++
 		res.Category = append(res.Category, &resp)
 

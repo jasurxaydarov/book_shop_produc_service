@@ -3,6 +3,7 @@ module github.com/jasurxaydarov/book_shop_produc_service
 go 1.20
 
 require (
+	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/joho/godotenv v1.5.1

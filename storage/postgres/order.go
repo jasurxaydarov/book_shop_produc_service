@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -68,10 +69,7 @@ func (o *orderRepo) GetOrderById(ctx context.Context, req *product_service.GetBy
 			order_id,
 			user_id,
 			total_amount,
-			order_status,
-			created_at,
-			updated_at
-
+			order_status
 		FROM 
 			orders
 		WHERE
@@ -87,8 +85,6 @@ func (o *orderRepo) GetOrderById(ctx context.Context, req *product_service.GetBy
 		&resp.UserId,
 		&resp.TotalAmount,
 		&resp.OrderStatus,
-		&resp.CreatedAt,
-		&resp.UpdatedAt,
 	
 	)
 
@@ -112,7 +108,10 @@ func (o *orderRepo) GetOrders(ctx context.Context, req *product_service.GetListR
 	var res product_service.OrderGetListResp
 	qury := `
 		SELECT 
-			*
+			order_id,
+			user_id,
+			total_amount,
+			order_status
 		FROM 
 			orders
 		WHERE 
@@ -127,6 +126,7 @@ func (o *orderRepo) GetOrders(ctx context.Context, req *product_service.GetListR
 		offset,
 	)
 
+	fmt.Println("ssssssssssssssssssssssss")
 	if err != nil {
 
 		o.log.Error("err on db GetOrders", logger.Error(err))
@@ -140,11 +140,12 @@ func (o *orderRepo) GetOrders(ctx context.Context, req *product_service.GetListR
 			&resp.UserId,
 			&resp.TotalAmount,
 			&resp.OrderStatus,
-			&resp.CreatedAt,
-			&resp.UpdatedAt,
-			&resp.DeletedAt,
 		)
+		if err != nil {
 
+			o.log.Error("err on db GetOrders", logger.Error(err))
+			return nil, err
+		}
 		res.Count++
 		res.Order = append(res.Order, &resp)
 
@@ -163,12 +164,11 @@ func (o *orderRepo) UpdateOrder(ctx context.Context, req *product_service.OrderU
 			UPDATE
 				orders
 			SET
-				user_id = $1,
-				total_amount = $2,
-				order_status = $3,
-				updated_at = $4
+				total_amount = $1,
+				order_status = $2,
+				updated_at = $3
 			WHERE 
-				order_id = $5 
+				order_id = $4
 			AND  
 				deleted_at is null
 			`
@@ -176,7 +176,6 @@ func (o *orderRepo) UpdateOrder(ctx context.Context, req *product_service.OrderU
 	_, err := o.db.Exec(
 		ctx,
 		query,
-		req.UserId,
 		req.TotalAmount,
 		req.OrderStatus,
 		time,

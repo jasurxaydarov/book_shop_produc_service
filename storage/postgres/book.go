@@ -118,7 +118,13 @@ func (b *BookRepo) GetBooks(ctx context.Context, req *product_service.GetListReq
 
 	qury := `
 		SELECT 
-			*
+			title,
+			author_id,
+			category_id,
+			price,
+			stock,
+			description,
+			published_date		
 		FROM 
 			books
 		WHERE
@@ -137,7 +143,7 @@ func (b *BookRepo) GetBooks(ctx context.Context, req *product_service.GetListReq
 
 	if err != nil {
 
-		b.log.Error("err on db GetBookById", logger.Error(err))
+		b.log.Error("err on db GetBooks", logger.Error(err))
 		return nil, err
 	}
 
@@ -151,11 +157,13 @@ func (b *BookRepo) GetBooks(ctx context.Context, req *product_service.GetListReq
 			&resp.Stock,
 			&resp.Description,
 			&resp.PublishedDate,
-			&resp.CreatedAt,
-			&resp.UpdatedAt,
-			&resp.DeletedAt,
+			
 		)
+		if err != nil {
 
+			b.log.Error("err on db GetBooks", logger.Error(err))
+			return nil, err
+		}
 		res.Count++
 		res.Book = append(res.Book, &resp)
 

@@ -28,12 +28,11 @@ func (o *orderedItemRepo) CreateOrderedItem(ctx context.Context, req *product_se
 			order_items(
 				order_item_id,
 				order_id,
-				user_id,
 				book_id,
 				quantity,
 				price 
 			)VALUES(
-				$1,$2,$3,$4,$5,$6
+				$1,$2,$3,$4,$5
 			)
 			`
 
@@ -42,7 +41,6 @@ func (o *orderedItemRepo) CreateOrderedItem(ctx context.Context, req *product_se
 		query,
 		id,
 		req.OrderId,
-		req.UserId,
 		req.BookId,
 		req.Quantity,
 		req.Price,
@@ -71,7 +69,6 @@ func (o *orderedItemRepo) GetOrderedItemById(ctx context.Context, req *product_s
 		SELECT 
 			order_item_id,
 			order_id,
-			user_id,
 			book_id,
 			quantity,
 			price 
@@ -88,7 +85,6 @@ func (o *orderedItemRepo) GetOrderedItemById(ctx context.Context, req *product_s
 	).Scan(
 		&resp.OrderItemId,
 		&resp.OrderId,
-		&resp.UserId,
 		&resp.BookId,
 		&resp.Quantity,
 		&resp.Price,
@@ -110,7 +106,11 @@ func (o *orderedItemRepo) GetOrderedItemsByOrdreId(ctx context.Context, req *pro
 
 	qury := `
 		SELECT 
-			*
+			order_item_id,
+			order_id,
+			book_id,
+			quantity,
+			price 
 		FROM 
 			order_items
 		WHERE
@@ -124,13 +124,9 @@ func (o *orderedItemRepo) GetOrderedItemsByOrdreId(ctx context.Context, req *pro
 		rows.Scan(
 			&resp.OrderItemId,
 			&resp.OrderId,
-			&resp.UserId,
 			&resp.BookId,
 			&resp.Quantity,
 			&resp.Price,
-			&resp.CreatedAt,
-			&resp.UpdatedAt,
-			&resp.DeletedAt,
 		)
 
 		row.OrderItem = append(row.OrderItem, &resp)
@@ -156,7 +152,11 @@ func (o *orderedItemRepo) GetOrderedItems(ctx context.Context, req *product_serv
 
 	qury := `
 		SELECT 
-			*
+			order_item_id,
+			order_id,
+			book_id,
+			quantity,
+			price 
 		FROM 
 			order_items
 		WHERE 
@@ -165,25 +165,29 @@ func (o *orderedItemRepo) GetOrderedItems(ctx context.Context, req *product_serv
 	`
 
 	rows, err := o.db.Query(ctx, qury, req.Limit,offset)
+	if err != nil {
 
+		o.log.Error("err on db GetOrderItems", logger.Error(err))
+		return nil, err
+	}
 	for rows.Next() {
 
 		rows.Scan(
 			&resp.OrderItemId,
 			&resp.OrderId,
-			&resp.UserId,
 			&resp.BookId,
 			&resp.Quantity,
 			&resp.Price,
-			&resp.CreatedAt,
-			&resp.UpdatedAt,
-			&resp.DeletedAt,
 		)
 
 		row.Count++
 
 		row.OrderItem = append(row.OrderItem, &resp)
+		if err != nil {
 
+			o.log.Error("err on db GetOrderItems", logger.Error(err))
+			return nil, err
+		}
 	}
 
 	if err != nil {
@@ -205,13 +209,12 @@ func (o *orderedItemRepo) UpdateOrderedItem(ctx context.Context, req *product_se
 				order_items
 			SET
 				order_id = $1,
-				user_id = $2,
-				book_id = $3,
-				quantity = $4,
-				price = $5,
-				update_at = $6
+				book_id = $2,
+				quantity = $3,
+				price = $4,
+				updated_at = $5
 		WHERE 
-				order_item_id = $7,
+				order_item_id = $6
 		AND  
 				deleted_at is null
 			`
@@ -220,7 +223,6 @@ func (o *orderedItemRepo) UpdateOrderedItem(ctx context.Context, req *product_se
 		ctx,
 		query,
 		req.OrderId,
-		req.UserId,
 		req.BookId,
 		req.Quantity,
 		req.Price,
@@ -252,9 +254,9 @@ func (o *orderedItemRepo) DeleteOrderedItem(ctx context.Context, req *product_se
 			UPDATE
 				order_items
 			SET
-				deleted_at = $1,
+				deleted_at = $1
 		WHERE 
-				order_item_id = $2,
+				order_item_id = $2
 		AND  
 				deleted_at is null
 			`
