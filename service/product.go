@@ -32,9 +32,17 @@ func (o *ProductService) CreateOrdered_Item(ctx context.Context, req *product_se
 	return resp, nil
 }
 
-func (o *ProductService) DeleteOrdered_Item(context.Context, *product_service.DeleteReq) (*product_service.Empty, error) {
+func (o *ProductService) DeleteOrdered_Item(ctx context.Context,req *product_service.DeleteReq) (*product_service.Empty, error) {
 
-	return nil, nil
+	resp, err := o.storage.GetOrderedItemRepo().DeleteOrderedItem(ctx, req)
+
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
 func (o *ProductService) GetOrdered_Item(ctx context.Context, req *product_service.GetByIdReq) (*product_service.OrderItem, error) {
 
@@ -48,13 +56,28 @@ func (o *ProductService) GetOrdered_Item(ctx context.Context, req *product_servi
 
 	return resp, nil
 }
-func (o *ProductService) GetOrdered_Items(context.Context, *product_service.GetListReq) (*product_service.OrderItemGetListResp, error) {
+func (o *ProductService) GetOrdered_Items(ctx context.Context,req *product_service.GetListReq) (*product_service.OrderItemGetListResp, error) {
+	resp, err := o.storage.GetOrderedItemRepo().GetOrderedItems(ctx, req)
 
-	return nil, nil
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
-func (o *ProductService) UpdateOrdered_Item(context.Context, *product_service.OrderItemCreateReq) (*product_service.OrderItem, error) {
+func (o *ProductService) UpdateOrdered_Item(ctx context.Context,req *product_service.OrderItemUpdate) (*product_service.OrderItem, error) {
 
-	return nil, nil
+	resp, err := o.storage.GetOrderedItemRepo().UpdateOrderedItem(ctx, req)
+
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (o *ProductService) GetOrdered_ItemByOrderId(ctx context.Context, req *product_service.GetByIdReq) (*product_service.OrderItemGetListResp, error) {
