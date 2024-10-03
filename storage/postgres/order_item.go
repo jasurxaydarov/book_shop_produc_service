@@ -164,7 +164,7 @@ func (o *orderedItemRepo) GetOrderedItems(ctx context.Context, req *product_serv
 		LIMIT $1 OFFSET $2;
 	`
 
-	rows, err := o.db.Query(ctx, qury, req.Limit,offset)
+	rows, err := o.db.Query(ctx, qury, req.Limit, offset)
 	if err != nil {
 
 		o.log.Error("err on db GetOrderItems", logger.Error(err))
@@ -199,10 +199,9 @@ func (o *orderedItemRepo) GetOrderedItems(ctx context.Context, req *product_serv
 	return &row, nil
 }
 
-
 func (o *orderedItemRepo) UpdateOrderedItem(ctx context.Context, req *product_service.OrderItemUpdate) (*product_service.OrderItem, error) {
 
-	time :=time.Now()
+	req.UpdatedAt = time.Now().String()
 
 	query := `
 			UPDATE
@@ -226,7 +225,7 @@ func (o *orderedItemRepo) UpdateOrderedItem(ctx context.Context, req *product_se
 		req.BookId,
 		req.Quantity,
 		req.Price,
-		time,
+		req.UpdatedAt,
 		req.OrderItemId,
 	)
 	if err != nil {
@@ -248,7 +247,7 @@ func (o *orderedItemRepo) UpdateOrderedItem(ctx context.Context, req *product_se
 
 func (o *orderedItemRepo) DeleteOrderedItem(ctx context.Context, req *product_service.DeleteReq) (*product_service.Empty, error) {
 
-	time :=time.Now()
+	time := time.Now()
 
 	query := `
 			UPDATE
@@ -272,8 +271,6 @@ func (o *orderedItemRepo) DeleteOrderedItem(ctx context.Context, req *product_se
 		o.log.Error("err on db DeleteOrderItem", logger.Error(err))
 		return nil, err
 	}
-
-	
 
 	return &product_service.Empty{}, nil
 }

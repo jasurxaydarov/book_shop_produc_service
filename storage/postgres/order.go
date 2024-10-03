@@ -158,7 +158,7 @@ func (o *orderRepo) GetOrders(ctx context.Context, req *product_service.GetListR
 func (o *orderRepo) UpdateOrder(ctx context.Context, req *product_service.OrderUpdateReq) (*product_service.Order, error) {
 
 
-	time:=time.Now()
+	req.UpdatedAt = time.Now().String()
 
 	query := `
 			UPDATE
@@ -178,7 +178,7 @@ func (o *orderRepo) UpdateOrder(ctx context.Context, req *product_service.OrderU
 		query,
 		req.TotalAmount,
 		req.OrderStatus,
-		time,
+		req.UpdatedAt,
 		req.OrderId,
 	)
 	if err != nil {

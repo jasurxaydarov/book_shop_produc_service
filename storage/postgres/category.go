@@ -144,10 +144,9 @@ func (c *CategoryRepo) GetCategories(ctx context.Context, req *product_service.G
 	return &res, nil
 }
 
-
 func (c *CategoryRepo) UpdateCategory(ctx context.Context, req *product_service.CategoryUpdateReq) (*product_service.Category, error) {
 
-	time:=time.Now()
+	req.UpdatedAt = time.Now().String()
 
 	query := `
 			UPDATE
@@ -167,7 +166,7 @@ func (c *CategoryRepo) UpdateCategory(ctx context.Context, req *product_service.
 		query,
 		req.CategoryName,
 		req.Description,
-		time,
+		req.UpdatedAt,
 		req.CategoryId,
 	)
 	if err != nil {
@@ -189,7 +188,7 @@ func (c *CategoryRepo) UpdateCategory(ctx context.Context, req *product_service.
 
 func (c *CategoryRepo) DeleteCategory(ctx context.Context, req *product_service.DeleteReq) (*product_service.Empty, error) {
 
-	time:=time.Now()
+	time := time.Now()
 
 	query := `
 			UPDATE
@@ -211,8 +210,6 @@ func (c *CategoryRepo) DeleteCategory(ctx context.Context, req *product_service.
 		c.log.Error("err on db DeleteCategory", logger.Error(err))
 		return nil, err
 	}
-
-	
 
 	return &product_service.Empty{}, nil
 }

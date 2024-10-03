@@ -149,7 +149,7 @@ func (u *AuthRepo) GetAuths(ctx context.Context, req *product_service.GetListReq
 
 func (u *AuthRepo) UpdateAuth(ctx context.Context, req *product_service.AuthorUpdateReq) (*product_service.Author, error) {
 
-	time := time.Now()
+	req.UpdatedAt = time.Now().String()
 
 	query := `
 		UPDATE
@@ -169,7 +169,7 @@ func (u *AuthRepo) UpdateAuth(ctx context.Context, req *product_service.AuthorUp
 		query,
 		req.AuthorName,
 		req.Bio,
-		time,
+		req.UpdatedAt,
 		req.AuthorId,
 	)
 	if err != nil {
